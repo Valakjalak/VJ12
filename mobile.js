@@ -1,132 +1,63 @@
 let highestZ = 1;
 
 class Paper {
-  holdingPaper = false;
-  touchStartX = 0;
-  touchStartY = 0;
-  touchMoveX = 0;
-  touchMoveY = 0;
-  touchEndX = 0;
-  touchEndY = 0;
-  prevTouchX = 0;
-  prevTouchY = 0;
-  velX = 0;
-  velY = 0;
-  rotation = Math.random() * 30 - 15;
-  currentPaperX = 0;
-  currentPaperY = 0;
-  rotating = false;
+  constructor(paper) {
+    this.paper = paper;
+    this.holdingPaper = false;
+    this.touchStartX = 0;
+    this.touchStartY = 0;
+    this.prevTouchX = 0;
+    this.prevTouchY = 0;
+    this.currentPaperX = 0;
+    this.currentPaperY = 0;
+    this.velX = 0;
+    this.velY = 0;
+    this.init();
+  }
 
-  let highestZ = 1;
+  init() {
+    this.paper.style.touchAction = "none";
 
-class Paper {
-  holdingPaper = false;
-  rotating = false;
-  touchStartX = 0;
-  touchStartY = 0;
-  prevTouchX = 0;
-  prevTouchY = 0;
-  touchMoveX = 0;
-  touchMoveY = 0;
-  velX = 0;
-  velY = 0;
-  rotation = Math.random() * 30 - 15;
-  currentPaperX = 0;
-  currentPaperY = 0;
+    this.paper.addEventListener("touchstart", (e) => this.onTouchStart(e));
+    this.paper.addEventListener("touchmove", (e) => this.onTouchMove(e));
+    this.paper.addEventListener("touchend", () => this.onTouchEnd());
+  }
 
-  init(paper) {
-    // Ensure touch gestures are recognized properly
-    paper.style.touchAction = "none";
+  onTouchStart(e) {
+    if (this.holdingPaper) return;
+    this.holdingPaper = true;
 
-    paper.addEventListener("touchstart", (e) => {
-      if (this.holdingPaper) return;
-      this.holdingPaper = true;
+    this.paper.style.zIndex = highestZ++;
+    this.touchStartX = e.touches[0].clientX;
+    this.touchStartY = e.touches[0].clientY;
+    this.prevTouchX = this.touchStartX;
+    this.prevTouchY = this.touchStartY;
+  }
 
-      paper.style.zIndex = highestZ++;
-      this.touchStartX = e.touches[0].clientX;
-      this.touchStartY = e.touches[0].clientY;
-      this.prevTouchX = this.touchStartX;
-      this.prevTouchY = this.touchStartY;
-    });
+  onTouchMove(e) {
+    if (!this.holdingPaper || e.touches.length !== 1) return;
+    e.preventDefault();
 
-    paper.addEventListener("touchmove", (e) => {
-      if (this.holdingPaper) {
-        e.preventDefault(); // Prevents scrolling only when moving paper
+    let touchMoveX = e.touches[0].clientX;
+    let touchMoveY = e.touches[0].clientY;
 
-        if (e.touches.length === 1 && !this.rotating) {
-          // Single touch drag
-          this.touchMoveX = e.touches[0].clientX;
-          this.touchMoveY = e.touches[0].clientY;
+    this.velX = touchMoveX - this.prevTouchX;
+    this.velY = touchMoveY - this.prevTouchY;
 
-          this.velX = this.touchMoveX - this.prevTouchX;
-          this.velY = this.touchMoveY - this.prevTouchY;
+    this.currentPaperX += this.velX;
+    this.currentPaperY += this.velY;
 
-          this.currentPaperX += this.velX;
-          this.currentPaperY += this.velY;
+    this.prevTouchX = touchMoveX;
+    this.prevTouchY = touchMoveY;
 
-          this.prevTouchX = this.touchMoveX;
-          this.prevTouchY = this.touchMoveY;
-        }
+    this.paper.style.transform = `translate(${this.currentPaperX}px, ${this.currentPaperY}px)`;
+  }
 
-        if (e.touches.length === 2) {
-          // Two-finger rotation
-          this.rotating = true;
-          let dx = e.touches[1].clientX - e.touches[0].clientX;
-          let dy = e.touches[1].clientY - e.touches[0].clientY;
-          let angle = Math.atan2(dy, dx) * (180 / Math.PI);
-          this.rotation = angle;
-        }
-
-        paper.style.transform = `translate(${this.currentPaperX}px, ${this.currentPaperY}px) rotate(${this.rotation}deg)`;
-      }
-    });
-
-    paper.addEventListener("touchend", () => {
-      this.holdingPaper = false;
-      this.rotating = false;
-    });
+  onTouchEnd() {
+    this.holdingPaper = false;
   }
 }
 
-// Select and initialize all paper elements
-const papers = Array.from(document.querySelectorAll(".paper"));
-papers.forEach((paper) => {
-  const p = new Paper();
-  p.init(paper);
-});
-
-
-    paper.addEventListener('touchstart', (e) => {
-      if(this.holdingPaper) return; 
-      this.holdingPaper = true;
-      
-      paper.style.zIndex = highestZ;
-      highestZ += 1;
-      
-      this.touchStartX = e.touches[0].clientX;
-      this.touchStartY = e.touches[0].clientY;
-      this.prevTouchX = this.touchStartX;
-      this.prevTouchY = this.touchStartY;
-    });
-    paper.addEventListener('touchend', () => {
-      this.holdingPaper = false;
-      this.rotating = false;
-    });
-
-    // For two-finger rotation on touch screens
-    paper.addEventListener('gesturestart', (e) => {
-      e.preventDefault();
-      this.rotating = true;
-    });
-    paper.addEventListener('gestureend', () => {
-      this.rotating = false;
-    });
-  }
-}
-
-const papers = Array.from(document.querySelectorAll('.paper'));
-
-papers.forEach(paper => {
-  const p = new Paper();
-  p.init(paper);
-});
+// Initialize all paper elements for touch interaction
+const papers = document.querySelectorAll(".paper");
+papers.forEach((paper) => new Paper(paper));
