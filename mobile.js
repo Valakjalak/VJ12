@@ -3,6 +3,7 @@ let highestZ = 1;
 class Paper {
   constructor(paper) {
     this.paper = paper;
+    console.log("Initialized paper element:", this.paper); // Logs the element
     this.holdingPaper = false;
     this.touchStartX = 0;
     this.touchStartY = 0;
@@ -14,6 +15,8 @@ class Paper {
     this.velY = 0;
     this.init();
   }
+}
+
 
   init() {
     this.paper.style.touchAction = "none";
@@ -49,14 +52,15 @@ class Paper {
 
     this.prevTouchX = touchMoveX;
     this.prevTouchY = touchMoveY;
+    this.paper.addEventListener("touchmove", (e) => this.onTouchMove(e), { passive: false });
 
     this.paper.style.transform = `translate(${this.currentPaperX}px, ${this.currentPaperY}px)`;
   }
 
-  onTouchEnd() {
+  onTouchEnd(); {
     this.holdingPaper = false;
   }
-}
+
 
 // Initialize all paper elements for touch interaction
 const papers = document.querySelectorAll(".paper");
