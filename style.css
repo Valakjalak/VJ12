@@ -40,6 +40,10 @@ body {
 }
 .paper.image p {
   font-size: 35px;
+  font-family: 'Untlang';
+  color: rgb(0,0,100);
+  opacity: 0.75;
+  user-select: none;
   
 }
 
